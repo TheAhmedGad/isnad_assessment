@@ -10,7 +10,6 @@ class CreateOrderController extends Controller
 {
     public function __invoke(OrderServices $orderServices, CreateOrderRequest $request)
     {
-        dd($request->validated());
         try {
             $order = $orderServices->placeOrder($request->validated('products'));
             return response()->json([
