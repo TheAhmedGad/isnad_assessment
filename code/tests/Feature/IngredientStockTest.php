@@ -47,7 +47,7 @@ class IngredientStockTest extends TestCase
             ]);
     }
 
-    public function test_ingredient_stock_is_synced_with_history()
+    public function test_ingredient_stock_column_is_synced_with_history_table()
     {
         $product = Product::with('ingredients')->first();
 
