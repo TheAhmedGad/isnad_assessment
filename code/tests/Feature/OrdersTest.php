@@ -73,9 +73,20 @@ class OrdersTest extends TestCase
             'products' => [
                 ['product_id' => $product->id, 'quantity' => 1]
             ]
-        ]);
-
-        $response->assertOk();
+        ])->assertCreated()
+            ->assertJsonStructure([
+                'data' => [
+                    'id',
+                    'created_at',
+                    'products' => [
+                        '*' => [
+                            'id',
+                            'name',
+                            'quantity'
+                        ]
+                    ],
+                ]
+            ]);
 
         $this->assertDatabaseHas('orders', []);
         $this->assertDatabaseHas('order_product', [
