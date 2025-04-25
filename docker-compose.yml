@@ -1,0 +1,64 @@
+name: "isnad_assessment"
+
+services:
+  # Webserver (nginx)
+  isnad_webserver:
+    image: nginx
+    container_name: isnad_webserver
+    working_dir: /var/www/html
+    volumes:
+      - ./config/nginx/:/etc/nginx/conf.d/
+      - ./code:/var/www/html
+    ports:
+      - "80:80"
+
+  # Backend service (php8.3)
+  isnad_backend:
+    image: ahmedmgad/php:8.4
+    hostname: isnad_backend
+    user: "root:root"
+    container_name: isnad_backend
+    working_dir: /var/www/html
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./code:/var/www/html
+    command: [ "/bin/bash","-c","php-fpm -y /usr/local/etc/php-fpm.conf -R" ]
+    depends_on:
+      - isnad_database
+
+
+  # Database (MySQL Server)
+  isnad_database:
+    image: mysql
+    hostname: isnad_database
+    container_name: isnad_database
+    volumes:
+      - ./data/mysql/:/var/lib/mysql/
+    environment:
+      MYSQL_HOST: isnad_database
+      MYSQL_DATABASE: isnad
+      MYSQL_ROOT_PASSWORD: root
+
+
+  # PhpMyAdmin (Development Only)
+  isnad_pma:
+    image: phpmyadmin
+    container_name: isnad_pma
+    environment:
+      - PMA_ARBITRARY=0
+      - PMA_HOST=isnad_database
+      - PMA_USER=root
+      - PMA_PASSWORD=root
+      - MYSQL_ROOT_PASSWORD=root
+      - UPLOAD_LIMIT=100M
+    ports:
+      - 8088:80
+
+  # Mailhog (Development Only)
+  isnad_mailhog:
+    image: mailhog/mailhog
+    hostname: isnad_mailhog
+    container_name: isnad_mailhog
+    ports:
+      - "8025:8025"
