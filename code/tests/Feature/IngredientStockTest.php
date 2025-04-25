@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Enums\StockActionType;
 use App\Mail\LowStockAlert;
 use App\Models\Product;
 use Illuminate\Support\Facades\Mail;
@@ -26,6 +27,30 @@ class IngredientStockTest extends TestCase
             $this->assertEquals($expected, $actual);
         }
     }
+
+    public function test_stock_history_stored_correctly()
+    {
+        $product = Product::with('ingredients')->first();
+
+        $quantity = 1;
+        $this->postJson('/api/v1/orders', [
+            'products' => [
+                ['product_id' => $product->id, 'quantity' => $quantity]
+            ]
+        ]);
+        foreach ($product->ingredients as $ingredient)
+            $this->assertDatabaseHas('ingredient_stocks', [
+                'ingredient_id' => $ingredient->id,
+                'action_type' => StockActionType::OUTGOING,
+                'amount_in_grams' => ($ingredient->pivot->amount_in_grams * $quantity) * -1, //-1 for deduction factory
+            ]);
+    }
+
+    public function test_ingredient_stock_is_synced_with_history()
+    {
+
+    }
+
 
     public function test_email_alert_sent_once_when_below_50_percent()
     {
@@ -66,4 +91,5 @@ class IngredientStockTest extends TestCase
 
         Mail::assertNothingSent();
     }
+
 }
