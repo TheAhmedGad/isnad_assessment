@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Enums\StockActionType;
 use App\Mail\LowStockAlert;
+use App\Models\IngredientStock;
 use App\Models\Product;
 use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
@@ -48,7 +49,20 @@ class IngredientStockTest extends TestCase
 
     public function test_ingredient_stock_is_synced_with_history()
     {
+        $product = Product::with('ingredients')->first();
 
+        $quantity = 1;
+        $this->postJson('/api/v1/orders', [
+            'products' => [
+                ['product_id' => $product->id, 'quantity' => $quantity]
+            ]
+        ]);
+
+        foreach ($product->ingredients as $ingredient) {
+            $expected = $ingredient->current_stock_in_grams - ($ingredient->pivot->amount_in_grams * $quantity);
+            $actual = IngredientStock::where('ingredient_id', $ingredient->id)->sum('amount_in_grams');
+            $this->assertEquals($expected, $actual);
+        }
     }
 
 
