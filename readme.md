@@ -96,6 +96,9 @@ Pivot Tables:
 - Stock logic and email triggering are handled with events and listeners inside the order placement process.
 
 ## Endpoint
+postman collection available for import [here](
+https://api.postman.com/collections/403705-37f54099-efe0-4273-83fd-777e44a5ec54?access_key=PMAT-01JSQ2ZP5AKQ3Z03WP2Z8XAW6N)
+
 ```http request
 POST http://localhost/api/v1/orders
 ```
@@ -109,6 +112,7 @@ POST http://localhost/api/v1/orders
   ]
 }
 ```
+
 ## Technologies Used
 
 - Laravel 12
